@@ -101,13 +101,22 @@ jobs:
           git submodule update --init --recursive vsmlrt/${{ env.PACKAGE_NAME }}/vs-mlrt
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           enable-cache: false
 
       - name: Setup MSVC
         if: runner.os == 'Windows'
         uses: ./.github/actions/setup-msvc
+
+      - name: Get Vulkan headers
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          repository: KhronosGroup/Vulkan-Headers
+          ref: d20afc58d6a95f80be5f1639a4990790f15bbf6a # v1.4.329
+          path: vulkan-headers
+          sparse-checkout: include
+          persist-credentials: false
 
       - name: Install build tools (Linux)
         if: runner.os == 'Linux'
@@ -156,6 +165,7 @@ jobs:
         run: uv build --package vapoursynth-mlrt-${{ env.PACKAGE_NAME }}
         env:
           SETUPTOOLS_SCM_PRETEND_VERSION_FOR_VAPOURSYNTH_MLRT_TRT_RTX: ${{ inputs.version }}
+          CMAKE_INCLUDE_PATH: ${{ github.workspace }}/vulkan-headers/include
 
       - name: Repair wheel (Linux)
         if: runner.os == 'Linux'
@@ -186,7 +196,7 @@ jobs:
          
 
       - name: Set up uv
-        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
           enable-cache: false
 
